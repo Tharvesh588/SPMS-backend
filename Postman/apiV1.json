@@ -1,0 +1,109 @@
+{
+  "info": {
+    "name": "SPMS - Student Project Management System",
+    "_postman_id": "9aa6aeb8-d48b-4cb9-9d3a-b5fa6abf7123",
+    "description": "RBAC backend for SPMS (Admin / Faculty / Student)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [{ "key": "base_url", "value": "http://localhost:5000/api" }],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\":\"Ravi\",\n  \"email\":\"ravi@student.edu\",\n  \"password\":\"pass123\",\n  \"role\":\"student\",\n  \"batch\":\"A\",\n  \"department\":\"ECE\"\n}"
+            },
+            "url": "{{base_url}}/auth/register"
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\":\"ravi@student.edu\",\n  \"password\":\"pass123\"\n}"
+            },
+            "url": "{{base_url}}/auth/login"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Problem Statements",
+      "item": [
+        {
+          "name": "List PS (Public)",
+          "request": { "method": "GET", "url": "{{base_url}}/ps" }
+        },
+        {
+          "name": "Create PS (Faculty)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{faculty_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Smart SoilSense\",\n  \"description\": \"IoT + ML based soil monitoring\",\n  \"driveLinks\": [\"https://drive.google.com/...\"],\n  \"allowedBatches\": [\"A\",\"B\"],\n  \"academicYear\": \"2025-2026\",\n  \"maxPerBatch\": 10\n}"
+            },
+            "url": "{{base_url}}/ps"
+          }
+        },
+        {
+          "name": "Student Choose PS",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{student_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"academicYear\":\"2025-2026\"\n}"
+            },
+            "url": "{{base_url}}/ps/<psId>/choose"
+          }
+        },
+        {
+          "name": "My Chosen PS",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{student_token}}" }
+            ],
+            "url": "{{base_url}}/ps/my?academicYear=2025-2026"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Teams (Admin)",
+      "item": [
+        {
+          "name": "Create Team",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Team Alpha\",\n  \"memberIds\": [\"<studentId1>\",\"<studentId2>\"],\n  \"projectTitle\": \"Smart SoilSense\",\n  \"problemStatementId\": \"<psId>\"\n}"
+            },
+            "url": "{{base_url}}/teams"
+          }
+        }
+      ]
+    }
+  ]
+}

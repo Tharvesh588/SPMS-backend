@@ -1,0 +1,72 @@
+openapi: 3.0.0
+info:
+  title: SPMS API
+  version: 1.0.0
+  description: Student Project Management System Backend API
+servers:
+  - url: http://localhost:5000/api
+paths:
+  /auth/register:
+    post:
+      summary: Register User
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Register'
+      responses:
+        "201": { description: Created }
+  /auth/login:
+    post:
+      summary: Login
+      responses:
+        "200": { description: OK }
+  /ps:
+    get:
+      summary: List All Problem Statements
+      responses:
+        "200": { description: OK }
+    post:
+      summary: Create Problem Statement (Faculty/Admin)
+      security:
+        - bearerAuth: []
+      responses:
+        "201": { description: Created }
+  /ps/{id}/choose:
+    post:
+      summary: Choose PS (Student)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                academicYear:
+                  type: string
+      responses:
+        "200": { description: PS selected successfully }
+components:
+  schemas:
+    Register:
+      type: object
+      required: [name, email, password]
+      properties:
+        name: { type: string }
+        email: { type: string }
+        password: { type: string }
+        role: { type: string, enum: [admin, faculty, student] }
+        batch: { type: string }
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

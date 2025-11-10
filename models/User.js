@@ -1,3 +1,4 @@
+// models/User.js
 const mongoose = require('mongoose');
 
 const selectedPSSchema = new mongoose.Schema({
@@ -8,13 +9,15 @@ const selectedPSSchema = new mongoose.Schema({
 
 const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
+  rollNo: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   passwordHash: { type: String, required: true },
-  role: { type: String, enum: ['admin','faculty','student'], default: 'student' },
   department: { type: String },
-  batch: { type: String }, // e.g. "A", "B" or year
+  division: { type: String, enum: ['A', 'B', 'C'] },
+  batch: { type: String }, // e.g. "2025"
   team: { type: mongoose.Schema.Types.ObjectId, ref: 'Team' },
-  selectedPS: selectedPSSchema, // one selection per academic year enforced in logic
+  selectedPS: selectedPSSchema,
+  role: { type: String, enum: ['student'], default: 'student' }
 }, { timestamps: true });
 
-module.exports = mongoose.model('User', userSchema);
+module.exports = mongoose.models.User || mongoose.model('User', userSchema);

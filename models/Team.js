@@ -1,15 +1,27 @@
+// models/Team.js
 const mongoose = require('mongoose');
 
-const problemStatementSchema = new mongoose.Schema({
-  title: { type: String, required: true },
-  description: { type: String },
-  faculty: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, // uploader
-  driveLinks: [{ type: String }], // drive links to docs
-  allowedBatches: [{ type: String }], // batches allowed to take this PS (max 2 per staff rule enforced)
-  academicYear: { type: String }, // "2025-2026"
-  maxPerBatch: { type: Number, default: 999 }, // optional limit per batch
-  assignedStudents: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
-  createdAt: { type: Date, default: Date.now }
+const studentSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  rollNo: { type: String, required: true },
+  department: { type: String, required: true },
+  division: { type: String, enum: ['A', 'B', 'C'], required: true }
 });
 
-module.exports = mongoose.models.Team || mongoose.model('Team', problemStatementSchema);
+const teamSchema = new mongoose.Schema({
+  teamName: { type: String, required: true, unique: true },
+  members: {
+    type: [studentSchema],
+    validate: [arrayLimit, '{PATH} exceeds the limit of 4']
+  },
+  selectedProblem: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'ProblemStatement'
+  }
+}, { timestamps: true });
+
+function arrayLimit(val) {
+  return val.length <= 4 && val.length >= 1;
+}
+
+module.exports = mongoose.models.Team || mongoose.model('Team', teamSchema);

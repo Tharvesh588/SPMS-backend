@@ -1,45 +1,105 @@
 openapi: 3.0.0
 info:
   title: SPMS API
-  version: 1.0.0
-  description: Student Project Management System Backend API
+  version: 2.0.0
+  description: >
+    **Student Project Management System (V.2)**  
+    Includes separated routes for Admin, Faculty, Student, Teams & Problem Statements.
 servers:
-  - url: http://localhost:5000/api
+  - url: http://localhost:5000/api/smps/v1
+
 paths:
-  /auth/register:
+  /auth/login:
     post:
-      summary: Register User
+      summary: User Login (All Roles)
+      tags: [Auth]
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Register'
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, example: user@mail.com }
+                password: { type: string, example: secret123 }
       responses:
-        "201": { description: Created }
-  /auth/login:
+        "200":
+          description: Login successful (returns JWT token)
+
+  /admin/create-faculty:
     post:
-      summary: Login
+      summary: Create Faculty (Admin Only)
+      tags: [Admin]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, department, email, password]
+              properties:
+                name: { type: string }
+                department: { type: string }
+                email: { type: string }
+                password: { type: string }
       responses:
-        "200": { description: OK }
-  /ps:
-    get:
-      summary: List All Problem Statements
+        "201":
+          description: Faculty account created successfully
+
+  /admin/create-batch:
+    post:
+      summary: Create Batch (Admin Only)
+      tags: [Admin]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [batchName, department, academicYear]
+              properties:
+                batchName: { type: string, example: "ECE-B" }
+                department: { type: string }
+                academicYear: { type: string, example: "2025-2026" }
       responses:
-        "200": { description: OK }
+        "201": { description: Batch created }
+
+  /faculty/ps:
     post:
       summary: Create Problem Statement (Faculty/Admin)
+      tags: [Faculty, Problem Statement]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProblemStatement'
+      responses:
+        "201": { description: Problem Statement created }
+
+    get:
+      summary: Get Problem Statements (Faculty/Admin)
+      tags: [Faculty, Problem Statement]
       security:
         - bearerAuth: []
       responses:
-        "201": { description: Created }
-  /ps/{id}/choose:
+        "200": { description: List of PS }
+
+  /students/choose-ps/{psId}:
     post:
-      summary: Choose PS (Student)
+      summary: Choose Problem Statement (Student)
+      tags: [Student]
       security:
         - bearerAuth: []
       parameters:
-        - name: id
+        - name: psId
           in: path
           required: true
           schema: { type: string }
@@ -50,21 +110,65 @@ paths:
             schema:
               type: object
               properties:
-                academicYear:
-                  type: string
+                academicYear: { type: string, example: "2025-2026" }
       responses:
         "200": { description: PS selected successfully }
+
+  /teams:
+    get:
+      summary: Get All Teams
+      tags: [Team]
+      security:
+        - bearerAuth: []
+      responses:
+        "200": { description: List of teams }
+
+    post:
+      summary: Create Team (Students)
+      tags: [Team]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Team'
+      responses:
+        "201": { description: Team created successfully }
+
 components:
   schemas:
-    Register:
+    ProblemStatement:
       type: object
-      required: [name, email, password]
+      required: [title, faculty]
       properties:
-        name: { type: string }
-        email: { type: string }
-        password: { type: string }
-        role: { type: string, enum: [admin, faculty, student] }
-        batch: { type: string }
+        title: { type: string }
+        description: { type: string }
+        faculty: { type: string }
+        driveLinks:
+          type: array
+          items: { type: string }
+        allowedBatches:
+          type: array
+          items: { type: string }
+        academicYear: { type: string }
+
+    Team:
+      type: object
+      required: [teamName, members]
+      properties:
+        teamName: { type: string, example: "Team Nexus" }
+        members:
+          type: array
+          items:
+            type: object
+            properties:
+              name: { type: string }
+              rollNo: { type: string }
+              department: { type: string }
+              division: { type: string, enum: ["A", "B", "C"] }
+
   securitySchemes:
     bearerAuth:
       type: http

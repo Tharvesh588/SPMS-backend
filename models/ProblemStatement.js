@@ -1,15 +1,18 @@
+// models/ProblemStatement.js
 const mongoose = require('mongoose');
 
 const problemStatementSchema = new mongoose.Schema({
   title: { type: String, required: true },
   description: { type: String },
-  faculty: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, // uploader
-  driveLinks: [{ type: String }], // drive links to docs
-  allowedBatches: [{ type: String }], // batches allowed to take this PS (max 2 per staff rule enforced)
-  academicYear: { type: String }, // "2025-2026"
-  maxPerBatch: { type: Number, default: 999 }, // optional limit per batch
-  assignedStudents: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
-  createdAt: { type: Date, default: Date.now }
-});
+  faculty: { type: mongoose.Schema.Types.ObjectId, ref: 'Faculty', required: true }, // uploader
+  driveLinks: [{ type: String }], // array of Drive links
+  allowedBatches: {
+    type: [String],
+    validate: [val => val.length <= 2, 'Only 2 batches allowed per faculty']
+  },
+  academicYear: { type: String, required: true }, // e.g. "2025-2026"
+  maxPerBatch: { type: Number, default: 2 }, // optional max 2 teams
+  assignedTeams: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Team' }],
+}, { timestamps: true });
 
-module.exports = mongoose.model('ProblemStatement', problemStatementSchema);
+module.exports = mongoose.models.ProblemStatement || mongoose.model('ProblemStatement', problemStatementSchema);

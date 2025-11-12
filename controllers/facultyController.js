@@ -1,27 +1,48 @@
 const asyncHandler = require('express-async-handler');
-const ProblemStatement = require('../models/ProblemStatement');
+const Faculty = require('../models/facultyModel');
 
-// Faculty creates problem statement
-const createPS = asyncHandler(async (req, res) => {
-  const { title, description, driveLinks = [], allowedBatches = [], academicYear } = req.body;
-  if (allowedBatches.length > 2)
-    return res.status(400).json({ message: 'Max 2 batches allowed per faculty PS' });
-
-  const ps = await ProblemStatement.create({
-    title,
-    description,
-    driveLinks,
-    allowedBatches,
-    academicYear,
-    faculty: req.user._id,
-  });
-  res.status(201).json(ps);
+// Get faculty profile
+const getFacultyProfile = asyncHandler(async (req, res) => {
+    const faculty = await Faculty.findById(req.user.id);
+    if (faculty) {
+        res.json({
+            _id: faculty._id,
+            name: faculty.name,
+            email: faculty.email,
+            department: faculty.department
+        });
+    } else {
+        res.status(404);
+        throw new Error('Faculty not found');
+    }
 });
 
-// View own PS
-const listMyPS = asyncHandler(async (req, res) => {
-  const list = await ProblemStatement.find({ faculty: req.user._id });
-  res.json(list);
+// Update faculty profile
+const updateFacultyProfile = asyncHandler(async (req, res) => {
+    const faculty = await Faculty.findById(req.user.id);
+    if (faculty) {
+        faculty.name = req.body.name || faculty.name;
+        faculty.email = req.body.email || faculty.email;
+        faculty.department = req.body.department || faculty.department;
+        
+        if (req.body.password) {
+            faculty.password = req.body.password;
+        }
+
+        const updatedFaculty = await faculty.save();
+        res.json({
+            _id: updatedFaculty._id,
+            name: updatedFaculty.name,
+            email: updatedFaculty.email,
+            department: updatedFaculty.department
+        });
+    } else {
+        res.status(404);
+        throw new Error('Faculty not found');
+    }
 });
 
-module.exports = { createPS, listMyPS };
+module.exports = {
+    getFacultyProfile,
+    updateFacultyProfile
+};

@@ -27,4 +27,9 @@ const permit = (...allowedRoles) => {
   }
 }
 
-module.exports = { protect, permit };
+module.exports = {
+  protect,
+  permit,
+  adminOnly: permit('admin') // alias for backward compatibility
+};
+

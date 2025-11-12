@@ -9,4 +9,11 @@ router.post('/faculty', protect, adminOnly, createFaculty);
 router.get('/faculty', protect, adminOnly, listFaculties);
 router.post('/team', protect, adminOnly, createTeam);
 
+console.log({
+  createFaculty,
+  listFaculties,
+  createTeam
+});
+
+
 module.exports = router;

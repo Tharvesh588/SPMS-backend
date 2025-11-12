@@ -1,46 +1,72 @@
-const asyncHandler = require('express-async-handler');
-const bcrypt = require('bcryptjs');
-const User = require('../models/User');
+// controllers/adminController.js
+const Faculty = require('../models/Faculty');
 const Team = require('../models/Team');
 
-// Admin creates Faculty account
-const createFaculty = asyncHandler(async (req, res) => {
-  const { name, email, password, department } = req.body;
-  if (!name || !email || !password) return res.status(400).json({ message: 'Missing fields' });
-  const exists = await User.findOne({ email });
-  if (exists) return res.status(400).json({ message: 'Email already exists' });
+// ✅ Create Faculty (only Admin can do)
+exports.createFaculty = async (req, res) => {
+  try {
+    const { name, department, email, password } = req.body;
 
-  const salt = await bcrypt.genSalt(10);
-  const passwordHash = await bcrypt.hash(password, salt);
-  const faculty = await User.create({ name, email, passwordHash, department, role: 'faculty' });
+    if (!name || !department || !email || !password) {
+      return res.status(400).json({ message: 'All fields are required' });
+    }
 
-  res.status(201).json({ id: faculty._id, name: faculty.name, email: faculty.email });
-});
+    const existing = await Faculty.findOne({ email });
+    if (existing) {
+      return res.status(400).json({ message: 'Faculty already exists' });
+    }
 
-// Admin creates a team
-const createTeam = asyncHandler(async (req, res) => {
-  const { teamName, students, problemStatementId } = req.body;
+    const faculty = await Faculty.create({
+      name,
+      department,
+      email,
+      password, // 🔒 ideally hash this later
+    });
 
-  if (!teamName || !students?.length)
-    return res.status(400).json({ message: 'Team name and students required' });
-  if (students.length > 4)
-    return res.status(400).json({ message: 'Max 4 members allowed per team' });
+    res.status(201).json({
+      message: 'Faculty created successfully',
+      faculty,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 
-  const team = await Team.create({
-    name: teamName,
-    members: students,
-    problemStatement: problemStatementId,
-    createdBy: req.user._id,
-  });
+// ✅ List all faculties
+exports.listFaculties = async (req, res) => {
+  try {
+    const faculties = await Faculty.find().sort({ createdAt: -1 });
+    res.status(200).json(faculties);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 
-  await User.updateMany({ _id: { $in: students } }, { team: team._id });
+// ✅ Create team (Admin-level)
+exports.createTeam = async (req, res) => {
+  try {
+    const { teamName, members, selectedProblem } = req.body;
 
-  res.status(201).json(team);
-});
+    if (!teamName || !members?.length) {
+      return res.status(400).json({ message: 'Team name and members required' });
+    }
 
-const listFaculties = asyncHandler(async (req, res) => {
-  const faculties = await User.find({ role: 'faculty' }).select('-passwordHash');
-  res.json(faculties);
-});
+    const teamExists = await Team.findOne({ teamName });
+    if (teamExists) {
+      return res.status(400).json({ message: 'Team already exists' });
+    }
 
-module.exports = { createFaculty, createTeam, listFaculties };
+    const team = await Team.create({
+      teamName,
+      members,
+      selectedProblem,
+    });
+
+    res.status(201).json({
+      message: 'Team created successfully',
+      team,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

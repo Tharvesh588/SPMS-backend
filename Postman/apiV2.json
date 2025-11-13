@@ -1,0 +1,162 @@
+{
+  "info": {
+    "name": "SPMS API v2",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "http://localhost:5000/api/auth/register" },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Admin\",\n  \"email\": \"admin@spms.com\",\n  \"password\": \"123456\",\n  \"role\": \"admin\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login User",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "http://localhost:5000/api/auth/login" },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@spms.com\",\n  \"password\": \"123456\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Faculty",
+      "item": [
+        {
+          "name": "Add Faculty",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "http://localhost:5000/api/faculty" },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Dr. Kumar\",\n  \"department\": \"CSE\",\n  \"email\": \"kumar@spms.com\",\n  \"password\": \"123456\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get All Faculty",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "http://localhost:5000/api/faculty" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Student",
+      "item": [
+        {
+          "name": "Add Student",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "http://localhost:5000/api/student" },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Rahul\",\n  \"registerNo\": \"21CSE101\",\n  \"email\": \"rahul@spms.com\",\n  \"password\": \"123456\",\n  \"department\": \"CSE\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get All Students",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "http://localhost:5000/api/student" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Project",
+      "item": [
+        {
+          "name": "Add Project",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "http://localhost:5000/api/project" },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Smart SoilSense\",\n  \"description\": \"AI-powered agriculture project\",\n  \"studentId\": \"<student_id_here>\",\n  \"facultyId\": \"<faculty_id_here>\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get All Projects",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "http://localhost:5000/api/project" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Submission / Evaluation",
+      "item": [
+        {
+          "name": "Submit Work",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "http://localhost:5000/api/submission" },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"projectId\": \"<project_id_here>\",\n  \"studentId\": \"<student_id_here>\",\n  \"fileUrl\": \"https://drive.google.com/example\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Evaluate Submission",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "http://localhost:5000/api/evaluate/<submission_id>" },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"marks\": 85,\n  \"remarks\": \"Good job!\"\n}"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

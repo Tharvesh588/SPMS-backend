@@ -1,5 +1,5 @@
 const asyncHandler = require('express-async-handler');
-const Faculty = require('../models/facultyModel');
+const Faculty = require('../models/Faculty');
 
 // Get faculty profile
 const getFacultyProfile = asyncHandler(async (req, res) => {
